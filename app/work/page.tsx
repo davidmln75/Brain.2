@@ -84,8 +84,8 @@ export default function WorkPage() {
       {/* FAB */}
       <button
         onClick={() => setShowAdd(true)}
-        className="fixed bottom-8 right-6 w-16 h-16 rounded-full text-white text-4xl flex items-center justify-center active:scale-90 transition-transform z-40 font-black"
-        style={{ backgroundColor: "#FF4500", boxShadow: "0 4px 24px rgba(255,69,0,0.5)" }}
+        className="fixed bottom-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full text-white flex items-center justify-center active:scale-90 transition-transform z-40"
+        style={{ backgroundColor: "#FF4500", boxShadow: "0 4px 24px rgba(255,69,0,0.5)", fontSize: "2rem", lineHeight: "1", paddingBottom: "2px" }}
       >
         +
       </button>
@@ -144,9 +144,10 @@ export default function WorkPage() {
                   <button
                     key={lb}
                     onClick={() => setLabel(lb)}
-                    className={`flex-1 py-2.5 rounded-xl font-bold text-xs border-2 transition-all flex items-center justify-center gap-1.5 ${label === lb ? "border-[#FF4500] bg-orange-50" : "border-gray-200"}`}
+                    className="flex-1 py-3 rounded-xl font-bold text-xs border-2 transition-all flex items-center justify-center gap-1.5"
+                    style={label === lb ? { borderColor: "#FF4500", backgroundColor: "#fff5f2", color: "#FF4500" } : { borderColor: "#e5e7eb", color: "#4b5563" }}
                   >
-                    <span className={`w-3 h-3 rounded-full ${LABEL_COLORS[lb]}`} />
+                    <span className={`w-3 h-3 rounded-full flex-shrink-0 ${LABEL_COLORS[lb]}`} />
                     {LABEL_NAMES[lb]}
                   </button>
                 ))}
@@ -156,7 +157,8 @@ export default function WorkPage() {
             <button
               onClick={handleAdd}
               disabled={!title.trim()}
-              className="w-full py-4 bg-[#FF4500] text-white font-black text-base rounded-2xl disabled:opacity-40 active:scale-95 transition-transform"
+              className="w-full py-4 font-black text-base rounded-2xl disabled:opacity-40 active:scale-95 transition-transform text-white"
+              style={{ backgroundColor: "#FF4500" }}
             >
               Ajouter
             </button>
@@ -175,28 +177,36 @@ function TaskItem({ task, onComplete, onDelete, done }: {
 }) {
   return (
     <div className={`flex items-center gap-3 p-4 rounded-2xl border-2 ${done ? "border-gray-100 opacity-50" : "border-gray-100"}`}>
-      <button
-        onClick={() => !done && onComplete(task.id)}
-        className={`w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${done ? "bg-black border-black" : "border-gray-300"}`}
-      >
-        {done && <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-      </button>
 
       <div className="flex-1 min-w-0">
         <p className={`font-semibold text-sm ${done ? "line-through text-gray-400" : ""}`}>{task.title}</p>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className={`w-2 h-2 rounded-full ${LABEL_COLORS[task.label]}`} />
+        <div className="flex items-center gap-2 mt-1">
+          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${LABEL_COLORS[task.label]}`} />
           <span className="text-xs text-gray-400">N{task.level}</span>
           {task.recurrence !== "oneshot" && (
             <span className="text-xs text-gray-400">• {task.recurrence === "daily" ? "quotidien" : "hebdo"}</span>
           )}
-          {!done && <span className="text-xs text-[#FF4500] font-bold ml-auto">+{LEVEL_XP[task.level as TaskLevel]}XP</span>}
+          {!done && <span className="text-xs font-bold ml-auto" style={{ color: "#FF4500" }}>+{LEVEL_XP[task.level as TaskLevel]}XP</span>}
         </div>
       </div>
 
+      {!done && (
+        <button
+          onClick={() => onComplete(task.id)}
+          className="flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-black text-white active:scale-95 transition-transform"
+          style={{ backgroundColor: "#FF4500" }}
+        >
+          ✓ Fait
+        </button>
+      )}
+
+      {done && (
+        <span className="text-xs font-bold text-gray-400">✓</span>
+      )}
+
       <button
         onClick={() => onDelete(task.id)}
-        className="w-6 h-6 flex items-center justify-center text-gray-300 active:text-red-500"
+        className="w-6 h-6 flex items-center justify-center text-gray-300 active:text-red-500 text-lg flex-shrink-0"
       >
         ×
       </button>
