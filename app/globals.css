@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'Alte Haas Grotesk';
+  src: url('/fonts/AlteHaasGroteskBold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Alte Haas Grotesk';
+  src: url('/fonts/AlteHaasGroteskRegular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg: #ffffff;
+  --fg: #000000;
+  --orange: #FF4500;
+  --orange-light: #FF6B35;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Alte Haas Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial Black, sans-serif;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* PWA safe areas */
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Remove default button styles */
+button {
+  -webkit-appearance: none;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+/* Smooth scrolling */
+* {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar hide */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Checkbox custom */
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Transitions */
+.page-enter {
+  animation: slideUp 0.25s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Label colors */
+.label-red { background-color: #EF4444; }
+.label-blue { background-color: #3B82F6; }
+.label-yellow { background-color: #EAB308; }
