@@ -26,6 +26,7 @@ export default function WorkPage() {
 
   // Form state
   const [title, setTitle] = useState("");
+  const [notes, setNotes] = useState("");
   const [level, setLevel] = useState<TaskLevel>(1);
   const [recurrence, setRecurrence] = useState<TaskRecurrence>("oneshot");
   const [label, setLabel] = useState<TaskLabel>("yellow");
@@ -45,8 +46,9 @@ export default function WorkPage() {
 
   const handleAdd = async () => {
     if (!title.trim()) return;
-    await addTask({ title: title.trim(), level, recurrence, label, category: "work" });
+    await addTask({ title: title.trim(), notes: notes.trim() || null, level, recurrence, label, category: "work" });
     setTitle("");
+    setNotes("");
     setLevel(1);
     setRecurrence("oneshot");
     setLabel("yellow");
@@ -102,6 +104,14 @@ export default function WorkPage() {
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Titre de la tâche"
               className="w-full border-b-2 border-black py-2 text-base font-medium outline-none"
+            />
+
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Notes / détails (optionnel)"
+              rows={3}
+              className="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none resize-none text-gray-600"
             />
 
             {/* Level */}
@@ -180,6 +190,7 @@ function TaskItem({ task, onComplete, onDelete, done }: {
 
       <div className="flex-1 min-w-0">
         <p className={`font-semibold text-sm ${done ? "line-through text-gray-400" : ""}`}>{task.title}</p>
+        {task.notes && <p className="text-xs text-gray-400 mt-0.5 leading-relaxed">{task.notes}</p>}
         <div className="flex items-center gap-2 mt-1">
           <span className={`w-2 h-2 rounded-full flex-shrink-0 ${LABEL_COLORS[task.label]}`} />
           <span className="text-xs text-gray-400">N{task.level}</span>

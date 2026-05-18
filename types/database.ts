@@ -8,6 +8,7 @@ export type ExerciseType = "yoga" | "running" | "indoor";
 export interface Task {
   id: string;
   title: string;
+  notes: string | null;
   level: TaskLevel;
   recurrence: TaskRecurrence;
   label: TaskLabel;
