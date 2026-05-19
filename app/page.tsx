@@ -24,13 +24,13 @@ export default function Home() {
 
   return (
     <div className="fixed inset-0 bg-white overflow-hidden">
-      {/* Scattered dots */}
+      {/* Scattered stars */}
       {DOTS.map(([x, y, size], i) => (
-        <div
+        <span
           key={i}
-          className="absolute rounded-full bg-black opacity-15"
-          style={{ left: `${x}%`, top: `${y}%`, width: size, height: size, transform: "translate(-50%, -50%)" }}
-        />
+          className="absolute select-none opacity-20 leading-none"
+          style={{ left: `${x}%`, top: `${y}%`, fontSize: size * 3.5, transform: "translate(-50%, -50%)", color: "#000" }}
+        >✦</span>
       ))}
 
       {/* Center: logo + stats */}
