@@ -35,7 +35,7 @@ export default function Home() {
         <span
           key={i}
           className="absolute select-none opacity-20 leading-none"
-          style={{ left: `${x}%`, top: `${y}%`, fontSize: size * 3.5, transform: "translate(-50%, -50%)", color: "#000" }}
+          style={{ left: `${x}%`, top: `${y}%`, fontSize: size * 6, transform: "translate(-50%, -50%)", color: "#000" }}
         >{GLYPHS[glyph]}</span>
       ))}
 
