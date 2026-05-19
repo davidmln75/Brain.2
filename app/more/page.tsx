@@ -24,7 +24,7 @@ export default function MorePage() {
 
   const handleAdd = async () => {
     if (!title.trim()) return;
-    await addTask({ title: title.trim(), level: 1, recurrence: "daily", label, category: "more" });
+    await addTask({ title: title.trim(), notes: null, level: 1, recurrence: "daily", label, category: "more" });
     setTitle("");
     setLabel("yellow");
     setShowAdd(false);
