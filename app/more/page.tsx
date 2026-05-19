@@ -12,12 +12,13 @@ const LABEL_COLORS: Record<TaskLabel, string> = {
 };
 
 export default function MorePage() {
-  const { tasks, loadAll, addTask, completeTask, deleteTask } = useAppStore();
+  const { tasks, loadAll, addTask, updateTask, completeTask, deleteTask, initMoreTasks } = useAppStore();
   const [showAdd, setShowAdd] = useState(false);
   const [title, setTitle] = useState("");
   const [label, setLabel] = useState<TaskLabel>("yellow");
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  useEffect(() => { loadAll(); }, [loadAll]);
+  useEffect(() => { loadAll().then(() => initMoreTasks()); }, [loadAll, initMoreTasks]);
 
   const moreTasks = tasks.filter((t) => t.category === "more");
   const active = moreTasks.filter((t) => !t.completed);
@@ -42,7 +43,7 @@ export default function MorePage() {
         )}
 
         {active.map((task) => (
-          <MoreTaskItem key={task.id} task={task} onComplete={completeTask} onDelete={deleteTask} />
+          <MoreTaskItem key={task.id} task={task} onComplete={completeTask} onDelete={deleteTask} onEdit={setEditingTask} />
         ))}
 
         {moreTasks.filter((t) => t.completed).length > 0 && (
@@ -59,6 +60,27 @@ export default function MorePage() {
       >
         +
       </button>
+
+      {editingTask && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end" onClick={() => setEditingTask(null)}>
+          <div className="bg-white w-full rounded-t-3xl p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-black">Modifier la tâche</h2>
+            <input
+              autoFocus
+              value={editingTask.title}
+              onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
+              className="w-full border-b-2 border-black py-2 text-base font-medium outline-none"
+            />
+            <button
+              onClick={async () => { await updateTask(editingTask.id, editingTask.title, editingTask.notes ?? null); setEditingTask(null); }}
+              className="w-full py-4 font-black text-base rounded-2xl text-white"
+              style={{ backgroundColor: "#FF4500" }}
+            >
+              Sauvegarder
+            </button>
+          </div>
+        </div>
+      )}
 
       {showAdd && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end" onClick={() => setShowAdd(false)}>
@@ -103,29 +125,37 @@ export default function MorePage() {
   );
 }
 
-function MoreTaskItem({ task, onComplete, onDelete }: {
+function MoreTaskItem({ task, onComplete, onDelete, onEdit }: {
   task: Task;
   onComplete: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit: (task: Task) => void;
 }) {
   return (
-    <div className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${task.completed ? "border-gray-100 opacity-50" : "border-gray-100"}`}>
-      <button
-        onClick={() => !task.completed && onComplete(task.id)}
-        className={`w-6 h-6 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all ${task.completed ? "bg-black border-black" : "border-gray-300"}`}
-      >
-        {task.completed && <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-      </button>
-
+    <div
+      className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all ${task.completed ? "border-gray-100 opacity-50" : "border-gray-100"}`}
+      onClick={() => !task.completed && onEdit(task)}
+    >
       <div className="flex-1">
         <p className={`font-semibold text-sm ${task.completed ? "line-through text-gray-400" : ""}`}>{task.title}</p>
         <div className="flex items-center gap-2 mt-0.5">
           <span className={`w-2 h-2 rounded-full ${LABEL_COLORS[task.label]}`} />
-          {!task.completed && <span className="text-xs text-[#FF4500] font-bold">+25 XP</span>}
+          {!task.completed && <span className="text-xs font-bold" style={{ color: "#FF4500" }}>+25 XP</span>}
         </div>
       </div>
 
-      <button onClick={() => onDelete(task.id)} className="w-6 h-6 flex items-center justify-center text-gray-300 active:text-red-500 text-lg">×</button>
+      {!task.completed && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onComplete(task.id); }}
+          className="flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-black text-white"
+          style={{ backgroundColor: "#FF4500" }}
+        >✓ Fait</button>
+      )}
+
+      <button
+        onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
+        className="w-6 h-6 flex items-center justify-center text-gray-300 active:text-red-500 text-lg flex-shrink-0"
+      >×</button>
     </div>
   );
 }

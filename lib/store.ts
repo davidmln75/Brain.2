@@ -18,12 +18,15 @@ interface AppState {
 
   // Tasks
   addTask: (task: Omit<Task, "id" | "created_at" | "completed" | "completed_at">) => Promise<void>;
+  updateTask: (id: string, title: string, notes: string | null) => Promise<void>;
   completeTask: (id: string) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
+  setStats: (xp: number, hearts: number) => Promise<void>;
 
   // Care
   completeCareTask: (id: string, reward: number) => Promise<void>;
   initCareTasks: () => Promise<void>;
+  initMoreTasks: () => Promise<void>;
 
   // Notes
   addFolder: (name: string) => Promise<void>;
@@ -96,9 +99,35 @@ export const useAppStore = create<AppState>((set, get) => ({
     await get().updateStats({ xp: xpReward });
   },
 
+  updateTask: async (id, title, notes) => {
+    await supabase.from("tasks").update({ title, notes }).eq("id", id);
+    set((s) => ({ tasks: s.tasks.map((t) => t.id === id ? { ...t, title, notes } : t) }));
+  },
+
   deleteTask: async (id) => {
     await supabase.from("tasks").delete().eq("id", id);
     set((s) => ({ tasks: s.tasks.filter((t) => t.id !== id) }));
+  },
+
+  setStats: async (xp, hearts) => {
+    const { stats } = get();
+    if (!stats) return;
+    await supabase.from("user_stats").update({ xp, hearts, updated_at: new Date().toISOString() }).eq("id", stats.id);
+    set({ stats: { ...stats, xp, hearts } });
+  },
+
+  initMoreTasks: async () => {
+    const { tasks } = get();
+    const moreTasks = tasks.filter((t) => t.category === "more");
+    if (moreTasks.length > 0) return;
+    // Tâches par défaut
+    const defaults = [
+      { title: "Code de la route", notes: null, level: 1 as const, recurrence: "daily" as const, label: "yellow" as const, category: "more" as const, completed: false, completed_at: null },
+      { title: "Lecture", notes: null, level: 1 as const, recurrence: "daily" as const, label: "blue" as const, category: "more" as const, completed: false, completed_at: null },
+      { title: "Méditation", notes: null, level: 1 as const, recurrence: "daily" as const, label: "yellow" as const, category: "more" as const, completed: false, completed_at: null },
+    ];
+    const { data } = await supabase.from("tasks").insert(defaults).select();
+    if (data) set((s) => ({ tasks: [...s.tasks, ...data] }));
   },
 
   initCareTasks: async () => {

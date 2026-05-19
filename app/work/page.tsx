@@ -20,9 +20,10 @@ const LABEL_NAMES: Record<TaskLabel, string> = {
 const LEVEL_XP: Record<TaskLevel, number> = { 1: 100, 2: 75, 3: 50 };
 
 export default function WorkPage() {
-  const { tasks, loadAll, addTask, completeTask, deleteTask } = useAppStore();
+  const { tasks, loadAll, addTask, updateTask, completeTask, deleteTask } = useAppStore();
   const [showAdd, setShowAdd] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -67,7 +68,7 @@ export default function WorkPage() {
           </div>
         )}
         {active.map((task) => (
-          <TaskItem key={task.id} task={task} onComplete={completeTask} onDelete={deleteTask} />
+          <TaskItem key={task.id} task={task} onComplete={completeTask} onDelete={deleteTask} onEdit={setEditingTask} />
         ))}
 
         {validCompleted.length > 0 && (
@@ -79,7 +80,7 @@ export default function WorkPage() {
           </button>
         )}
         {showCompleted && validCompleted.map((task) => (
-          <TaskItem key={task.id} task={task} onComplete={completeTask} onDelete={deleteTask} done />
+          <TaskItem key={task.id} task={task} onComplete={completeTask} onDelete={deleteTask} onEdit={setEditingTask} done />
         ))}
       </div>
 
@@ -91,6 +92,35 @@ export default function WorkPage() {
       >
         +
       </button>
+
+      {/* Edit modal */}
+      {editingTask && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-end" onClick={() => setEditingTask(null)}>
+          <div className="bg-white w-full rounded-t-3xl p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-black">Modifier la tâche</h2>
+            <input
+              autoFocus
+              value={editingTask.title}
+              onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
+              className="w-full border-b-2 border-black py-2 text-base font-medium outline-none"
+            />
+            <textarea
+              value={editingTask.notes ?? ""}
+              onChange={(e) => setEditingTask({ ...editingTask, notes: e.target.value })}
+              placeholder="Notes / détails (optionnel)"
+              rows={3}
+              className="w-full border border-gray-200 rounded-xl p-3 text-sm outline-none resize-none text-gray-600"
+            />
+            <button
+              onClick={async () => { await updateTask(editingTask.id, editingTask.title, editingTask.notes ?? null); setEditingTask(null); }}
+              className="w-full py-4 font-black text-base rounded-2xl text-white"
+              style={{ backgroundColor: "#FF4500" }}
+            >
+              Sauvegarder
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Add modal */}
       {showAdd && (
@@ -179,14 +209,18 @@ export default function WorkPage() {
   );
 }
 
-function TaskItem({ task, onComplete, onDelete, done }: {
+function TaskItem({ task, onComplete, onDelete, onEdit, done }: {
   task: Task;
   onComplete: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit: (task: Task) => void;
   done?: boolean;
 }) {
   return (
-    <div className={`flex items-center gap-3 p-4 rounded-2xl border-2 ${done ? "border-gray-100 opacity-50" : "border-gray-100"}`}>
+    <div
+      className={`flex items-center gap-3 p-4 rounded-2xl border-2 ${done ? "border-gray-100 opacity-50" : "border-gray-100"}`}
+      onClick={() => !done && onEdit(task)}
+    >
 
       <div className="flex-1 min-w-0">
         <p className={`font-semibold text-sm ${done ? "line-through text-gray-400" : ""}`}>{task.title}</p>
@@ -203,7 +237,7 @@ function TaskItem({ task, onComplete, onDelete, done }: {
 
       {!done && (
         <button
-          onClick={() => onComplete(task.id)}
+          onClick={(e) => { e.stopPropagation(); onComplete(task.id); }}
           className="flex-shrink-0 px-3 py-1.5 rounded-xl text-xs font-black text-white active:scale-95 transition-transform"
           style={{ backgroundColor: "#FF4500" }}
         >
@@ -211,12 +245,10 @@ function TaskItem({ task, onComplete, onDelete, done }: {
         </button>
       )}
 
-      {done && (
-        <span className="text-xs font-bold text-gray-400">✓</span>
-      )}
+      {done && <span className="text-xs font-bold text-gray-400">✓</span>}
 
       <button
-        onClick={() => onDelete(task.id)}
+        onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
         className="w-6 h-6 flex items-center justify-center text-gray-300 active:text-red-500 text-lg flex-shrink-0"
       >
         ×

@@ -72,7 +72,7 @@ export default function Home() {
         ))}
       </nav>
 
-      <div className="h-8" />
+      <Link href="/fix" className="text-xs text-gray-300 font-bold tracking-widest uppercase">fix</Link>
     </div>
   );
 }
